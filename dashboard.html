@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ScholarsNook — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!--  RESPONSIVE BACKGROUNDS  -->
+  <style>
+    @media (min-width: 768px) {
+      body {
+        background-image: url('bg-desktop.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+    }
+    @media (max-width: 767px) {
+      body {
+        background-image: url('bg-mobile.jpg');
+        background-size: cover;
+        background-position: center;
+      }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 10px; }
+      .card { padding: 16px; }
+      .hero { padding: 40px 20px; }
+      button, .actions a { width: 100%; margin-bottom: 8px; }
+    }
+
+    /*  OPTIONAL LOGO BAR (one-liner)  */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+    .brand img {
+      height: 32px;               /* your logo */
+    }
+    .brand span {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .brand .tag {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    /*  SEMI-TRANSPARENT CARD  */
+    .card {
+      background: rgba(255, 255, 255, 0.25); /* 25 % white frost */
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      margin-top: 16px;
+    }
+
+    /*  GREEN GRADIENT for Welcome → Points  */
+    .hero {
+      background: linear-gradient(135deg, var(--ths-green) 0%, var(--ths-violet) 100%);
+      margin: 0 -20px 20px -20px;
+      padding: 60px 20px;
+      text-align: center;
+      color: #fff;
+      border-radius: 12px 12px 0 0;   /* rounded top only */
+    }
+  </style>
+</head>
+
+<body>
+<main class="container">
+  <header class="brand">
+    <!--  DROP your logo here  -->
+    <img src="logo.png" alt="ScholarsNook logo">
+    <span>
+      <h1>ScholarsNook</h1>
+      <p class="tag">Track your points • Flex your wins</p>
+    </span>
+  </header>
+
+  <section class="hero">
+    <h1>Welcome, <span id="userName"></span>!</h1>
+    <p>Your current balance</p>
+    <div class="points" style="font-size: 3rem; margin-top: 12px;">
+      <span id="userPoints">0</span> pts
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Upcoming Activities</h2>
+    <h3>January</h3>
+    <ul>Xmas Party</ul>
+    <h3>February</h3>
+    <ul>valentiens day</ul>
+  </section>
+
+  <section class="card">
+    <h2>Leaderboard – Top 3</h2>
+    <ol id="top3" class="leaderboard"></ol>
+    <p style="#000000">More features coming soon…</p>
+    <div class="actions">
+      <a href="login.html" class="alt-btn" style="background: var(--muted);">Log out</a>
+    </div>
+  </section>
+
+  <div style="position:fixed; bottom:8px; right:8px; font-size:0.7rem; color:rgba(255,255,255,0.6); pointer-events:none; white-space:nowrap;">
+      Made by <strong>Joseph Victor Valones 🔹 Honor Society</strong>
+  </div>
+</main>
+
+<script>
+const SHEET_ID = '1zCRAV4a2mGVXpq3wmrUqpPSaBOVcxKSK-8Rhk31gI4g';
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTQsu-SF_y4VrOaNv1HL-JUZuZW8cyB0auP0yoaL3CsLRGns27IIzO9cT1kvjvBa4wk2FUOS40E3Zbq/pub?output=csv`;
+
+const user = sessionStorage.getItem('user');
+if (!user) location.href = 'login.html';
+
+(async () => {
+  const res = await fetch(CSV_URL);
+  const txt = await res.text();
+  const rows = txt.split('\n').slice(1);
+  let myPts = 0;
+  const board = [];
+  for (const raw of rows) {
+    const cols = raw.split(',').map(c => c.replace(/^"(.*)"$/, '$1').trim());
+    const [,,,u]      = cols;          // username (col 3)
+    const [,name]     = cols;          // name      (col 1)
+    const pts         = parseInt(cols[5]) || 0; // points (col 5)
+    if (u === user) myPts = pts;
+    if (name && pts) board.push({ name, pts });
+  }
+  document.getElementById('userName').textContent = user;
+  document.getElementById('userPoints').textContent = myPts.toLocaleString();
+
+  board.sort((a, b) => b.pts - a.pts);
+  const html = board.slice(0, 3).map(p =>
+    `<li>${p.name} – <span class="points">${p.pts.toLocaleString()} pts</span></li>`
+  ).join('');
+  document.getElementById('top3').innerHTML = html;
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+

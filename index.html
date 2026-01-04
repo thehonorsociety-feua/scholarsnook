@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ScholarsNook — Member Login</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!--  RESPONSIVE BACKGROUNDS  -->
+  <style>
+    /* ==========  DESKTOP  ========== */
+    @media (min-width: 768px) {
+      body {
+        background-image: url('bg-desktop.jpg');   /* ← your desktop wallpaper */
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+    }
+
+    /* ==========  MOBILE  ========== */
+    @media (max-width: 767px) {
+      body {
+        background-image: url('bg-mobile.jpg');    /* ← your mobile wallpaper */
+        background-size: cover;
+        background-position: center;
+      }
+    }
+
+    /* ==========  SMALL TWEAKS  ========== */
+    @media (max-width: 480px) {
+      .container { padding: 10px; }
+      .card { padding: 16px; }
+      .hero { padding: 40px 20px; }
+      button, .actions a { width: 100%; margin-bottom: 8px; }
+    }
+  </style>
+</head>
+
+<body>
+<main class="container">
+  <header class="brand" style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
+  <img src="logo.png" alt="ScholarsNook logo" style="height:96px;"> <!-- adjust height 64 good-->
+    <span style="display:flex; align-items:baseline; gap:8px;">
+    <h1 style="margin:0; font-size:2rem;">ScholarsNook</h1>
+    <p class="tag" style="margin:0; font-size:1.4rem;">Track your points • Flex your wins</p>
+    </span>
+  </header>
+
+  <section class="card">
+    <h2>Member Login</h2>
+
+    <div class="input-row">
+      <label for="loginUsername">Username</label>
+      <input id="loginUsername" type="text" required />
+    </div>
+    <div class="input-row">
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" required />
+    </div>
+    <div class="actions">
+      <button type="button" id="doLogin">Submit</button>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScKqQaP-ZapdtCPMbO2J4hOItHol7WnSAUQtbkogJXSFX8k8w/viewform?usp=header" target="_blank" rel="noopener">New here? Sign up</a>
+    </div>
+    <p id="msg" class="muted" style="color:red;margin-top:8px;"></p>
+    <!--  WATERMARK  -->
+    <div style="position:fixed; bottom:8px; right:8px; font-size:0.7rem; color:rgba(255,255,255,0.6); pointer-events:none; white-space:nowrap;">
+      Made by <strong>Joseph Victor Valones 🔹 Honor Society</strong>
+    </div>
+  </section>
+</main>
+
+<script>
+const SHEET_ID = '1zCRAV4a2mGVXpq3wmrUqpPSaBOVcxKSK-8Rhk31gI4g';
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTQsu-SF_y4VrOaNv1HL-JUZuZW8cyB0auP0yoaL3CsLRGns27IIzO9cT1kvjvBa4wk2FUOS40E3Zbq/pub?output=csv`;
+
+document.getElementById('doLogin').addEventListener('click', async () => {
+  const user = document.getElementById('loginUsername').value.trim();
+  const pass = document.getElementById('loginPassword').value.trim();
+  if (!user || !pass) return;
+
+  try {
+    const res  = await fetch(CSV_URL);
+    const txt  = await res.text();
+    const rows = txt.split('\n').slice(1);
+    let ok = false;
+    for (const raw of rows) {
+      const cols = raw.split(',').map(c => c.replace(/^"(.*)"$/, '$1').trim());
+      const [,,,u,p] = cols;
+      if (u === user && p === pass) { ok = true; break; }
+    }
+    if (ok) {
+      sessionStorage.setItem('user', user);
+      location.href = 'dashboard.html';
+    } else {
+      document.getElementById('msg').textContent = 'Invalid username or password.';
+    }
+  } catch (e) {
+    document.getElementById('msg').textContent = 'Network error – try again.';
+  }
+});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
